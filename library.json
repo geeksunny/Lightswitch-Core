@@ -1,0 +1,16 @@
+{
+    "name": "LightswitchCore",
+    "description": "Shared core for Lightswitch client/server communication.",
+    "repository": {
+        "type": "git",
+        "url": ""
+    },
+    "authors": {
+        "name": "Justin Swanson",
+        "email": "geeksunny@gmail.com",
+        "url": "https://beepboop.me/"
+    },
+    "version": "0.0.1",
+    "frameworks": "arduino",
+    "platforms": "espressif8266"
+}
