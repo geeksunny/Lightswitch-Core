@@ -7,18 +7,18 @@
 
 namespace storage {
 
-template <int EEPROM_SIZE>
+template<int EEPROM_SIZE>
 class Storage {
   bool started_;
  public:
-  Storage & setup();
+  Storage &setup();
   bool commit();
  protected:
   Storage() = default;
   template<typename T>
-  Storage & get(uint8_t addr, T &v);
+  Storage &get(uint8_t addr, T &v);
   template<typename T>
-  Storage & put(uint8_t addr, T &v);
+  Storage &put(uint8_t addr, T &v);
 };
 
 }

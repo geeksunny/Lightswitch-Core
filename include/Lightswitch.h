@@ -13,9 +13,9 @@ namespace lightswitch {
 
 enum PacketType {
   // Sent from server
-  NOTIFY_RESULT,
+      NOTIFY_RESULT,
   // Sent from client
-  PERFORM_ACTION
+      PERFORM_ACTION
 };
 
 typedef struct __attribute__((packed)) _LS_MSG_FIXED {
@@ -28,7 +28,7 @@ typedef struct __attribute__((packed)) _LS_MSG_FIXED {
   }
 } LS_MSG_FIXED;
 
-template <typename ClientStream, typename Container>
+template<typename ClientStream, typename Container>
 inline int parseLightswitchPacket(ClientStream &src, Container &dest) {
   return src.read((uint8_t *) &dest, sizeof(Container));
 }

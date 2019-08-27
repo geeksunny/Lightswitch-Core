@@ -59,8 +59,10 @@ void LightswitchClient::loop() {
               break;
             }
             case PacketType::PERFORM_ACTION:
-            default:
+            default: {
+              // Shouldn't be here
               break;
+            }
           }
         }
       }
@@ -92,6 +94,7 @@ void LightswitchClient::loop() {
     }
     default: {
       // Shouldn't be here
+      break;
     }
   }
 }
@@ -105,12 +108,14 @@ void LightswitchClient::sendPerformAction(uint8_t action, uint8_t value) {
   WiFi.macAddress(msg_.mac);
   // Send the message
   switch (mode_) {
-    case ConnectionMode::DIRECT:
+    case ConnectionMode::DIRECT: {
       sendPerformActionDirect();
       break;
-    case ConnectionMode::BROADCAST:
+    }
+    case ConnectionMode::BROADCAST: {
       sendPerformActionBroadcast();
       break;
+    }
     default:
       // Shouldn't be here.
       break;
@@ -128,7 +133,7 @@ void LightswitchClient::sendPerformActionDirect() {
 }
 
 void LightswitchClient::sendPerformActionBroadcast() {
-  udp_.beginPacket({255,255,255,255}, LIGHTSWITCH_PORT_SERVER);
+  udp_.beginPacket({255, 255, 255, 255}, LIGHTSWITCH_PORT_SERVER);
   udp_.write((uint8_t *) &msg_, LIGHTSWITCH_PACKET_BUFFER_SIZE);
   udp_.endPacket();
 }
