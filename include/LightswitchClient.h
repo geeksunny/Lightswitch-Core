@@ -17,7 +17,13 @@ class ClientStorage : public storage::Storage<EEPROM_SIZE_BYTES> {
   ClientStorage &setServerAddress(IPAddress &ip_address);
 };
 
+enum ConnectionMode {
+  DIRECT,
+  BROADCAST
+};
+
 class LightswitchClient {
+  ConnectionMode mode_;
   ClientStorage storage_;
   LS_MSG_FIXED msg_;
   WiFiClient tcp_;
@@ -28,8 +34,8 @@ class LightswitchClient {
   void loop();
   void sendPerformAction(uint8_t action, uint8_t value);
  private:
-  void sendPerformActionDirect(uint8_t action, uint8_t value);
-  void sendPerformActionBroadcast(uint8_t action, uint8_t value);
+  void sendPerformActionDirect();
+  void sendPerformActionBroadcast();
 };
 
 }
