@@ -1,5 +1,5 @@
-#ifndef WIFIBUDDON_INCLUDE_LIGHTSWITCH_H_
-#define WIFIBUDDON_INCLUDE_LIGHTSWITCH_H_
+#ifndef LIGHTSWITCHCORE_INCLUDE_LIGHTSWITCH_H_
+#define LIGHTSWITCHCORE_INCLUDE_LIGHTSWITCH_H_
 
 #include <stdint.h>
 #include <cstring>
@@ -35,4 +35,4 @@ inline int parseLightswitchPacket(ClientStream &src, Container &dest) {
 
 }
 
-#endif //WIFIBUDDON_INCLUDE_LIGHTSWITCH_H_
+#endif //LIGHTSWITCHCORE_INCLUDE_LIGHTSWITCH_H_

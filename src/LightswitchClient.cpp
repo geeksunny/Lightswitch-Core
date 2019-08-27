@@ -1,13 +1,36 @@
 #include "LightswitchClient.h"
 #include <ESP8266WiFi.h>
 
+#define ADDRESS_CLICK_COUNT   0x00
+#define ADDRESS_SERVER_IP     0x01
+
+#define LENGTH_CLICK_COUNT    1
+#define LENGTH_SERVER_IP      4
+
 namespace lightswitch {
 
-LightswitchClient::LightswitchClient() {
-  // = default?
+ClientStorage &ClientStorage::getClicks(uint8_t &dest) {
+  put(ADDRESS_CLICK_COUNT, dest);
+  return *this;
+}
+
+ClientStorage &ClientStorage::getServerAddress(IPAddress &dest) {
+  get(ADDRESS_SERVER_IP, dest);
+  return *this;
+}
+
+ClientStorage &ClientStorage::setClicks(uint8_t &clicks) {
+  put(ADDRESS_CLICK_COUNT, clicks);
+  return *this;
+}
+
+ClientStorage &ClientStorage::setServerAddress(IPAddress &ip_address) {
+  put(ADDRESS_SERVER_IP, ip_address);
+  return *this;
 }
 
 void LightswitchClient::setup() {
+  storage_.setup();
   // TODO: Check for saved server IP address
   //  EXISTS: Open TCP connection to server
   //   TIMEOUT: Fallback to UDP Broadcast
@@ -29,7 +52,7 @@ void LightswitchClient::loop() {
       switch (msg_.type) {
         case PacketType::NOTIFY_RESULT: {
           IPAddress ip = udp_.remoteIP();
-          // TODO: Store value of `ip` in flash storage
+          storage_.setServerAddress(ip);
           // TODO: Parse value of `value` to find result. 0=success/1=error ?
           break;
         }
