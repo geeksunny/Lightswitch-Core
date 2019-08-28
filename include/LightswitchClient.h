@@ -2,7 +2,7 @@
 #define LIGHTSWITCHCORE_INCLUDE_LIGHTSWITCHCLIENT_H_
 
 #include "Lightswitch.h"
-#include "Storage.h"
+#include "Storage.hpp"
 #include <WiFiClient.h>
 #include <WiFiUdp.h>
 
