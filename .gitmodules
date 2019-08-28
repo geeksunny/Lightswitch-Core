@@ -1,3 +1,0 @@
-[submodule "lib/ESP_EEPROM"]
-	path = lib/ESP_EEPROM
-	url = git@github.com:geeksunny/ESP_EEPROM.git
