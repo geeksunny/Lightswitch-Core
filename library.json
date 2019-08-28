@@ -12,11 +12,5 @@
     },
     "version": "0.0.1",
     "frameworks": "arduino",
-    "platforms": "espressif8266",
-    "dependencies": [
-        {
-            "name": "ESP_EEPROM",
-            "version": "https://github.com/geeksunny/ESP_EEPROM.git#master"
-        }
-    ]
+    "platforms": "espressif8266"
 }
