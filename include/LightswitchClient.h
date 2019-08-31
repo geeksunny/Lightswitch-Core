@@ -2,19 +2,19 @@
 #define LIGHTSWITCHCORE_INCLUDE_LIGHTSWITCHCLIENT_H_
 
 #include "Lightswitch.h"
-#include "Storage.hpp"
+#include "Storage.h"
 #include <WiFiClient.h>
 #include <WiFiUdp.h>
 
 namespace lightswitch {
 
-class ClientStorage : public storage::Storage<EEPROM_SIZE_BYTES> {
+class ClientStorage : public storage::Storage {
  public:
   ClientStorage() = default;
-  ClientStorage &getClicks(uint8_t &dest);
-  ClientStorage &getServerAddress(IPAddress &dest);
-  ClientStorage &setClicks(uint8_t &clicks);
-  ClientStorage &setServerAddress(IPAddress &ip_address);
+  bool getClicks(uint8_t &dest);
+  bool getServerAddress(IPAddress &dest);
+  bool setClicks(uint8_t &clicks);
+  bool setServerAddress(IPAddress &ip_address);
 };
 
 enum ConnectionMode {

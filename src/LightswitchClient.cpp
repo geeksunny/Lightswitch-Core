@@ -1,32 +1,25 @@
 #include "LightswitchClient.h"
 #include <ESP8266WiFi.h>
 
-#define ADDRESS_CLICK_COUNT   0x00
-#define ADDRESS_SERVER_IP     0x01
-
-#define LENGTH_CLICK_COUNT    1
-#define LENGTH_SERVER_IP      4
+#define KEY_CLICK_COUNT   "/cfg/clicks"
+#define KEY_SERVER_IP     "/cfg/server"
 
 namespace lightswitch {
 
-ClientStorage &ClientStorage::getClicks(uint8_t &dest) {
-  put(ADDRESS_CLICK_COUNT, dest);
-  return *this;
+bool ClientStorage::getClicks(uint8_t &dest) {
+  return put(KEY_CLICK_COUNT, dest);
 }
 
-ClientStorage &ClientStorage::getServerAddress(IPAddress &dest) {
-  get(ADDRESS_SERVER_IP, dest);
-  return *this;
+bool ClientStorage::getServerAddress(IPAddress &dest) {
+  return get(KEY_SERVER_IP, dest);
 }
 
-ClientStorage &ClientStorage::setClicks(uint8_t &clicks) {
-  put(ADDRESS_CLICK_COUNT, clicks);
-  return *this;
+bool ClientStorage::setClicks(uint8_t &clicks) {
+  return put(KEY_CLICK_COUNT, clicks);
 }
 
-ClientStorage &ClientStorage::setServerAddress(IPAddress &ip_address) {
-  put(ADDRESS_SERVER_IP, ip_address);
-  return *this;
+bool ClientStorage::setServerAddress(IPAddress &ip_address) {
+  return put(KEY_SERVER_IP, ip_address);
 }
 
 void LightswitchClient::setup() {
@@ -77,7 +70,7 @@ void LightswitchClient::loop() {
           switch (msg_.type) {
             case PacketType::NOTIFY_RESULT: {
               IPAddress ip = udp_.remoteIP();
-              storage_.setServerAddress(ip).commit();
+              storage_.setServerAddress(ip);
               // TODO: Parse value of `value` to find result. 0=success/1=error ?
               // TODO: We are done here - POWER DOWN
               break;
@@ -122,7 +115,8 @@ void LightswitchClient::sendPerformAction(uint8_t action, uint8_t value) {
   }
   // Increment stored click count
   uint8_t count;
-  storage_.getClicks(count).setClicks(++count).commit();
+  storage_.getClicks(count);
+  storage_.setClicks(++count);
 }
 
 void LightswitchClient::sendPerformActionDirect() {
