@@ -18,6 +18,19 @@ enum PacketType {
       PERFORM_ACTION
 };
 
+enum Action {
+  // Toggle power state
+      TOGGLE,
+  // Set color
+      SET_COLOR,
+  // Set secene
+      SET_SCENE,
+  // Adjust brightness
+      BRIGHTNESS,
+  // Color cycler
+      CYCLE
+};
+
 typedef struct __attribute__((packed)) _LS_MSG_FIXED {
   uint8_t type;
   uint8_t action;

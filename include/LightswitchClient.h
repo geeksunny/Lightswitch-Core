@@ -24,8 +24,8 @@ enum ConnectionMode {
 
 class LightswitchClient {
   ConnectionMode mode_;
-  ClientStorage storage_;
-  LS_MSG_FIXED msg_;
+  ClientStorage storage_{};
+  LS_MSG_FIXED msg_{};
   WiFiClient tcp_;
   WiFiUDP udp_;
  public:
