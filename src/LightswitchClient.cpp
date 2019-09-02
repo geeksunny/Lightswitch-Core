@@ -92,6 +92,10 @@ void LightswitchClient::loop() {
   }
 }
 
+const ClientStorage &LightswitchClient::getStorage() {
+  return storage_;
+}
+
 void LightswitchClient::sendPerformAction(uint8_t action, uint8_t value) {
   // Populate outgoing message
   msg_.reset();
