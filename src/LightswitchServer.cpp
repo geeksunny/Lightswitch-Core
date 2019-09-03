@@ -1,6 +1,10 @@
 #include "LightswitchServer.h"
 #include <WiFiClient.h>
 
+#ifdef DEBUG_MODE
+#include <iostream>
+#endif
+
 namespace lightswitch {
 
 LightswitchServer::LightswitchServer(ActionHandler &handler) : handler_(handler), server_(LIGHTSWITCH_PORT_SERVER) {
@@ -9,9 +13,15 @@ LightswitchServer::LightswitchServer(ActionHandler &handler) : handler_(handler)
 
 void LightswitchServer::setup() {
   // TCP server
+#ifdef DEBUG_MODE
+  std::cout << "Starting TCP server on port " << LIGHTSWITCH_PORT_SERVER << std::endl;
+#endif
   server_.begin();
   server_.setNoDelay(true);
   // UDP server
+#ifdef DEBUG_MODE
+  std::cout << "Starting UDP monitoring on port " << LIGHTSWITCH_PORT_SERVER << std::endl;
+#endif
   udp_.begin(LIGHTSWITCH_PORT_SERVER);
 }
 
@@ -25,6 +35,9 @@ ServerStorage &LightswitchServer::getStorage() {
 }
 
 bool LightswitchServer::dispatchAction(const uint8_t action, const uint8_t value) {
+#ifdef DEBUG_MODE
+#include <iostream>
+#endif
   return handler_.onAction(action, value);
 }
 
@@ -39,6 +52,9 @@ void LightswitchServer::readTCP() {
   if (!client) {
     return;
   }
+#ifdef DEBUG_MODE
+  std::cout << "TCP client available!" << std::endl;
+#endif
   int bytesRead = 0;
   while (client.connected()) {
     if (client.available()) {
@@ -49,6 +65,9 @@ void LightswitchServer::readTCP() {
       }
     }
   }
+#ifdef DEBUG_MODE
+  std::cout << "TCP bytes read: " << bytesRead << std::endl;
+#endif
   if (bytesRead > 0 && msg_.type == PacketType::PERFORM_ACTION) {
     bool result = dispatchAction(msg_.action, msg_.value);
     prepOutgoingPacket(result);
@@ -57,13 +76,22 @@ void LightswitchServer::readTCP() {
   }
   // Closing the connection
   client.stop();
+#ifdef DEBUG_MODE
+  std::cout << "Closed TCP connection." << std::endl;
+#endif
 }
 
 void LightswitchServer::readUDP() {
   if (udp_.parsePacket()) {
+#ifdef DEBUG_MODE
+    std::cout << "UDP packet available!" << std::endl;
+#endif
     if (udp_.remotePort() == LIGHTSWITCH_PORT_CLIENT) {
       msg_.reset();
       int bytesRead = parseLightswitchPacket(udp_, msg_);
+#ifdef DEBUG_MODE
+      std::cout << "UDP bytes read: " << bytesRead << std::endl;
+#endif
       if (bytesRead == 0) {
         return;
       }
@@ -83,6 +111,9 @@ void LightswitchServer::readUDP() {
         }
       }
       udp_.flush();
+#ifdef DEBUG_MODE
+      std::cout << "Flushed UDP stream." << std::endl;
+#endif
     }
   }
 }

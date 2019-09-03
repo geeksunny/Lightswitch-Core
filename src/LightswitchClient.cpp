@@ -1,6 +1,10 @@
 #include "LightswitchClient.h"
 #include <ESP8266WiFi.h>
 
+#ifdef DEBUG_MODE
+#include <iostream>
+#endif
+
 #define KEY_CLICK_COUNT   "/cfg/clicks"
 #define KEY_SERVER_IP     "/cfg/server"
 
@@ -28,9 +32,15 @@ void LightswitchClient::setup() {
   IPAddress server;
   storage_.getServerAddress(server);
   if (server.isV4() && tcp_.connect(server, LIGHTSWITCH_PORT_SERVER)) {
+#ifdef DEBUG_MODE
+    std::cout << "Connecting to stored server address: " << server.toString() << std::endl;
+#endif
     mode_ = ConnectionMode::DIRECT;
   } else {
     // TODO: if IP exists but was invalid, clear stored IP?
+#ifdef DEBUG_MODE
+    std::cout << "Performing UDP broadcast!" << std::endl;
+#endif
     udp_.begin(LIGHTSWITCH_PORT_CLIENT);
     mode_ = ConnectionMode::BROADCAST;
   }
@@ -49,6 +59,9 @@ void LightswitchClient::loop() {
             case PacketType::NOTIFY_RESULT: {
               // TODO: Parse value of `value` to find result. 0=success/1=error ?
               // TODO: We are done here - POWER DOWN
+#ifdef DEBUG_MODE
+              std::cout << "TCP Recv NOTIFY_RESULT: " << msg_.value << std::endl;
+#endif
               break;
             }
             case PacketType::PERFORM_ACTION:
@@ -73,6 +86,9 @@ void LightswitchClient::loop() {
               storage_.setServerAddress(ip);
               // TODO: Parse value of `value` to find result. 0=success/1=error ?
               // TODO: We are done here - POWER DOWN
+#ifdef DEBUG_MODE
+              std::cout << "UDP Recv NOTIFY_RESULT: " << msg_.value << std::endl;
+#endif
               break;
             }
             case PacketType::PERFORM_ACTION:
@@ -97,6 +113,9 @@ const ClientStorage &LightswitchClient::getStorage() {
 }
 
 void LightswitchClient::sendPerformAction(uint8_t action, uint8_t value) {
+#ifdef DEBUG_MODE
+  std::cout << "sendPerformAction(action=" << msg_.action << ", value=" << msg_.value << ")" << std::endl;
+#endif
   // Populate outgoing message
   msg_.reset();
   msg_.type = PacketType::PERFORM_ACTION;
@@ -107,10 +126,16 @@ void LightswitchClient::sendPerformAction(uint8_t action, uint8_t value) {
   switch (mode_) {
     case ConnectionMode::DIRECT: {
       sendPerformActionDirect();
+#ifdef DEBUG_MODE
+      std::cout << "Sent direct TCP packet." << std::endl;
+#endif
       break;
     }
     case ConnectionMode::BROADCAST: {
       sendPerformActionBroadcast();
+#ifdef DEBUG_MODE
+      std::cout << "Sent broadcast UDP packet." << std::endl;
+#endif
       break;
     }
     default:
@@ -118,9 +143,13 @@ void LightswitchClient::sendPerformAction(uint8_t action, uint8_t value) {
       break;
   }
   // Increment stored click count
-  uint8_t count;
-  storage_.getClicks(count);
-  storage_.setClicks(++count);
+  uint8_t count = 0;
+  bool hasClicks = storage_.getClicks(count);
+  count += 1;
+#ifdef DEBUG_MODE
+  std::cout << "New click count: " << count << " | Had clicks: " << (hasClicks ? "YES" : "NO") << std::endl;
+#endif
+  storage_.setClicks(count);
 }
 
 void LightswitchClient::sendPerformActionDirect() {
