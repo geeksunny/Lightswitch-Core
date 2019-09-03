@@ -20,7 +20,7 @@ void LightswitchServer::loop() {
   readUDP();
 }
 
-const ServerStorage &LightswitchServer::getStorage() {
+ServerStorage &LightswitchServer::getStorage() {
   return storage_;
 }
 

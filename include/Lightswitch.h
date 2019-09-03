@@ -18,7 +18,7 @@ enum PacketType {
       PERFORM_ACTION
 };
 
-enum Action {
+enum LightswitchAction {
   // Toggle power state
       TOGGLE,
   // Set color

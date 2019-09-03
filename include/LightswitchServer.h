@@ -19,6 +19,8 @@ class ServerStorage : public storage::Storage {
   // TODO: getters & setters
 };
 
+// TODO: Implement optional DHCP mode that uses DHCP monitoring to detect clicks, ala Amazon Dash Buttons
+
 class LightswitchServer {
   ActionHandler &handler_;
   ServerStorage storage_{};
@@ -29,7 +31,7 @@ class LightswitchServer {
   LightswitchServer(ActionHandler &handler);
   void setup();
   void loop();
-  const ServerStorage &getStorage();
+  ServerStorage &getStorage();
  private:
   bool dispatchAction(uint8_t action, uint8_t value);
   void prepOutgoingPacket(bool result);
