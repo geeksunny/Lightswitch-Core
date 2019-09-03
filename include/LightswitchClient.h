@@ -32,7 +32,7 @@ class LightswitchClient {
   LightswitchClient() = default;
   void setup();
   void loop();
-  const ClientStorage &getStorage();
+  ClientStorage &getStorage();
   void sendPerformAction(uint8_t action, uint8_t value);
  private:
   void sendPerformActionDirect();

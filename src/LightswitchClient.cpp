@@ -108,7 +108,7 @@ void LightswitchClient::loop() {
   }
 }
 
-const ClientStorage &LightswitchClient::getStorage() {
+ClientStorage &LightswitchClient::getStorage() {
   return storage_;
 }
 
