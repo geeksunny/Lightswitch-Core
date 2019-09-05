@@ -9,6 +9,13 @@
 #define KEY_CLICK_COUNT   "/cfg/clicks"
 #define KEY_SERVER_IP     "/cfg/server"
 
+#ifndef CFG_DEFAULT_CLIENT_CLICK_COUNT
+#define CFG_DEFAULT_CLIENT_CLICK_COUNT 0
+#endif
+#ifndef CFG_DEFAULT_CLIENT_ACTION
+#define CFG_DEFAULT_CLIENT_ACTION 0
+#endif
+
 namespace lightswitch {
 
 bool ClientStorage::getAction(uint8_t &dest) {
