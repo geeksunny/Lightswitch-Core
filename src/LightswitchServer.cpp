@@ -35,9 +35,6 @@ ServerStorage &LightswitchServer::getStorage() {
 }
 
 bool LightswitchServer::dispatchAction(const uint8_t action, const uint8_t value) {
-#ifdef DEBUG_MODE
-#include <iostream>
-#endif
   return handler_.onAction(action, value);
 }
 

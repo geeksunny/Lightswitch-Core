@@ -33,7 +33,7 @@ void LightswitchClient::setup() {
   storage_.getServerAddress(server);
   if (server.isV4() && tcp_.connect(server, LIGHTSWITCH_PORT_SERVER)) {
 #ifdef DEBUG_MODE
-    std::cout << "Connecting to stored server address: " << server.toString() << std::endl;
+    std::cout << "Connecting to stored server address: " << server.toString().c_str() << std::endl;
 #endif
     mode_ = ConnectionMode::DIRECT;
   } else {
@@ -60,7 +60,7 @@ void LightswitchClient::loop() {
               // TODO: Parse value of `value` to find result. 0=success/1=error ?
               // TODO: We are done here - POWER DOWN
 #ifdef DEBUG_MODE
-              std::cout << "TCP Recv NOTIFY_RESULT: " << msg_.value << std::endl;
+              std::cout << "TCP Recv NOTIFY_RESULT: " << unsigned(msg_.value) << std::endl;
 #endif
               break;
             }
@@ -87,7 +87,7 @@ void LightswitchClient::loop() {
               // TODO: Parse value of `value` to find result. 0=success/1=error ?
               // TODO: We are done here - POWER DOWN
 #ifdef DEBUG_MODE
-              std::cout << "UDP Recv NOTIFY_RESULT: " << msg_.value << std::endl;
+              std::cout << "UDP Recv NOTIFY_RESULT: " << unsigned(msg_.value) << std::endl;
 #endif
               break;
             }
@@ -114,7 +114,7 @@ ClientStorage &LightswitchClient::getStorage() {
 
 void LightswitchClient::sendPerformAction(uint8_t action, uint8_t value) {
 #ifdef DEBUG_MODE
-  std::cout << "sendPerformAction(action=" << msg_.action << ", value=" << msg_.value << ")" << std::endl;
+  std::cout << "sendPerformAction(action=" << unsigned(msg_.action) << ", value=" << unsigned(msg_.value) << ")" << std::endl;
 #endif
   // Populate outgoing message
   msg_.reset();
@@ -147,7 +147,7 @@ void LightswitchClient::sendPerformAction(uint8_t action, uint8_t value) {
   bool hasClicks = storage_.getClicks(count);
   count += 1;
 #ifdef DEBUG_MODE
-  std::cout << "New click count: " << count << " | Had clicks: " << (hasClicks ? "YES" : "NO") << std::endl;
+  std::cout << "New click count: " << unsigned(count) << " | Had clicks: " << (hasClicks ? "YES" : "NO") << std::endl;
 #endif
   storage_.setClicks(count);
 }
