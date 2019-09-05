@@ -21,9 +21,13 @@ enum PacketType {
 enum LightswitchAction {
   // Toggle power state
       TOGGLE,
+  // Turn on
+      TURN_ON,
+  // Turn off
+      TURN_OFF,
   // Set color
       SET_COLOR,
-  // Set secene
+  // Set scene
       SET_SCENE,
   // Adjust brightness
       BRIGHTNESS,

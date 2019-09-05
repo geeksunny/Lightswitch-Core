@@ -5,10 +5,15 @@
 #include <iostream>
 #endif
 
+#define KEY_ACTION        "/cfg/action"
 #define KEY_CLICK_COUNT   "/cfg/clicks"
 #define KEY_SERVER_IP     "/cfg/server"
 
 namespace lightswitch {
+
+bool ClientStorage::getAction(uint8_t &dest) {
+  return get(KEY_ACTION, dest);
+}
 
 bool ClientStorage::getClicks(uint16_t &dest) {
   return get(KEY_CLICK_COUNT, dest);
@@ -16,6 +21,10 @@ bool ClientStorage::getClicks(uint16_t &dest) {
 
 bool ClientStorage::getServerAddress(IPAddress &dest) {
   return get(KEY_SERVER_IP, dest);
+}
+
+bool ClientStorage::setAction(uint8_t &action) {
+  return put(KEY_ACTION, action);
 }
 
 bool ClientStorage::setClicks(uint16_t &clicks) {
@@ -121,7 +130,8 @@ void LightswitchClient::sendPerformAction(uint8_t action, uint8_t value) {
   // Populate outgoing message
   msg_.reset();
   msg_.type = PacketType::PERFORM_ACTION;
-  msg_.action = action;
+  // TODO: pull action from storage, store default value if none set
+  msg_.action = CFG_DEFAULT_CLIENT_ACTION;
   msg_.value = value;
   WiFi.macAddress(msg_.mac);
   // Send the message
@@ -145,7 +155,7 @@ void LightswitchClient::sendPerformAction(uint8_t action, uint8_t value) {
       break;
   }
   // Increment stored click count
-  uint16_t count = 0;
+  uint16_t count = CFG_DEFAULT_CLIENT_CLICK_COUNT;
   bool hasClicks = storage_.getClicks(count);
   count += 1;
 #ifdef DEBUG_MODE

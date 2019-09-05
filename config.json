@@ -2,6 +2,10 @@
   "DEBUG_MODE": "",
   "MODE_SWITCH_PIN": 4,
   "DEVICE_NAME": "Lightswitch",
+  "CFG_DEFAULT_CLIENT": {
+    "CLICK_COUNT": 0,
+    "ACTION": 0
+  },
   "CLIENT": {
     "SSID": "NetworkName",
     "ENCRYPTED": true,
