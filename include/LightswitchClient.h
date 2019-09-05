@@ -11,9 +11,9 @@ namespace lightswitch {
 class ClientStorage : public storage::Storage {
  public:
   ClientStorage() = default;
-  bool getClicks(uint8_t &dest);
+  bool getClicks(uint16_t &dest);
   bool getServerAddress(IPAddress &dest);
-  bool setClicks(uint8_t &clicks);
+  bool setClicks(uint16_t &clicks);
   bool setServerAddress(IPAddress &ip_address);
 };
 

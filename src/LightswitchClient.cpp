@@ -10,15 +10,15 @@
 
 namespace lightswitch {
 
-bool ClientStorage::getClicks(uint8_t &dest) {
-  return put(KEY_CLICK_COUNT, dest);
+bool ClientStorage::getClicks(uint16_t &dest) {
+  return get(KEY_CLICK_COUNT, dest);
 }
 
 bool ClientStorage::getServerAddress(IPAddress &dest) {
   return get(KEY_SERVER_IP, dest);
 }
 
-bool ClientStorage::setClicks(uint8_t &clicks) {
+bool ClientStorage::setClicks(uint16_t &clicks) {
   return put(KEY_CLICK_COUNT, clicks);
 }
 
@@ -33,7 +33,9 @@ void LightswitchClient::setup() {
   storage_.getServerAddress(server);
   if (server.isV4() && tcp_.connect(server, LIGHTSWITCH_PORT_SERVER)) {
 #ifdef DEBUG_MODE
-    std::cout << "Connecting to stored server address: " << server.toString().c_str() << std::endl;
+    std::cout << "Connecting to stored server address: "
+              << unsigned(server[0]) << "." << unsigned(server[1]) << "."
+              << unsigned(server[2]) << "." << unsigned(server[3]) << std::endl;
 #endif
     mode_ = ConnectionMode::DIRECT;
   } else {
@@ -143,11 +145,11 @@ void LightswitchClient::sendPerformAction(uint8_t action, uint8_t value) {
       break;
   }
   // Increment stored click count
-  uint8_t count = 0;
+  uint16_t count = 0;
   bool hasClicks = storage_.getClicks(count);
   count += 1;
 #ifdef DEBUG_MODE
-  std::cout << "New click count: " << unsigned(count) << " | Had clicks: " << (hasClicks ? "YES" : "NO") << std::endl;
+  std::cout << "New click count: " << count << " | Had clicks: " << (hasClicks ? "YES" : "NO") << std::endl;
 #endif
   storage_.setClicks(count);
 }
