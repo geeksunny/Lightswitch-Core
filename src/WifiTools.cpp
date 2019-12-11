@@ -1,14 +1,10 @@
 #include <ESP8266WiFi.h>
-
 #include "WifiTools.h"
+#include "DebugLog.hpp"
 
 #if AP_MAC_IN_NAME
 #include <sstream>
 #include <iomanip>
-#endif
-
-#ifdef DEBUG_MODE
-#include <iostream>
 #endif
 
 namespace wifi_tools {
@@ -51,9 +47,7 @@ bool startAP() {
 bool startClient() {
   // Check for presence of wifi shield / module
   if (WiFi.status() == WL_NO_SHIELD) {
-#ifdef DEBUG_MODE
-    std::cout << ("WiFi shield not present") << std::endl;
-#endif
+    DEBUG("WiFi shield not present")
     while (true); // Halt
     // TODO: Properly handle halt with power down
   }
@@ -63,23 +57,17 @@ bool startClient() {
 
   // Attempt to connect to network
   if (WiFi.getAutoConnect()) {
-#ifdef DEBUG_MODE
-    std::cout << "Attempting to connect using SAVED SSID!" << std::endl;
-#endif
+    DEBUG("Attempting to connect using SAVED SSID!")
     // Connect to saved network:
 //    WiFi
 //    .begin();
   } else {
 #if CLIENT_ENCRYPTED
-#ifdef DEBUG_MODE
-    std::cout << "Attempting to connect to WPA SSID: " << CLIENT_SSID << std::endl;
-#endif
+    DEBUG("Attempting to connect to WPA SSID:", CLIENT_SSID)
     // Connect to WPA/WPA2 network:
     WiFi.begin(CLIENT_SSID, CLIENT_PASS);
 #else
-#ifdef DEBUG_MODE
-    std::cout << "Attempting to connect to OPEN WIFI SSID: " << CLIENT_SSID << std::endl;
-#endif
+    DEBUG("Attempting to connect to OPEN WIFI SSID:", CLIENT_SSID)
     // Connect to unencrypted wifi network:
     WiFi.begin(CLIENT_SSID);
 #endif
@@ -94,10 +82,8 @@ bool startClient() {
     // TODO: Handle a wifi timeout period, return false on timeout
   }
 
-#ifdef DEBUG_MODE
   // Connected to network!
-  std::cout << "Connected to network!" << std::endl;
-#endif
+  DEBUG("Connected to network!")
   return true;
 }
 

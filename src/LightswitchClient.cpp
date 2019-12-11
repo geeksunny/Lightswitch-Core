@@ -1,9 +1,6 @@
 #include "LightswitchClient.h"
 #include <ESP8266WiFi.h>
-
-#ifdef DEBUG_MODE
-#include <iostream>
-#endif
+#include "DebugLog.hpp"
 
 #define KEY_ACTION        "/cfg/action"
 #define KEY_CLICK_COUNT   "/cfg/clicks"
@@ -48,17 +45,11 @@ void LightswitchClient::setup() {
   IPAddress server;
   storage_.getServerAddress(server);
   if (server.isV4() && tcp_.connect(server, LIGHTSWITCH_PORT_SERVER)) {
-#ifdef DEBUG_MODE
-    std::cout << "Connecting to stored server address: "
-              << unsigned(server[0]) << "." << unsigned(server[1]) << "."
-              << unsigned(server[2]) << "." << unsigned(server[3]) << std::endl;
-#endif
+    DEBUG("Connecting to stored server address:", server.toString().c_str())
     mode_ = ConnectionMode::DIRECT;
   } else {
     // TODO: if IP exists but was invalid, clear stored IP?
-#ifdef DEBUG_MODE
-    std::cout << "Performing UDP broadcast!" << std::endl;
-#endif
+    DEBUG("Performing UDP broadcast!")
     udp_.begin(LIGHTSWITCH_PORT_CLIENT);
     mode_ = ConnectionMode::BROADCAST;
   }
@@ -77,9 +68,7 @@ void LightswitchClient::loop() {
             case PacketType::NOTIFY_RESULT: {
               // TODO: Parse value of `value` to find result. 0=success/1=error ?
               // TODO: We are done here - POWER DOWN
-#ifdef DEBUG_MODE
-              std::cout << "TCP Recv NOTIFY_RESULT: " << unsigned(msg_.value) << std::endl;
-#endif
+              DEBUG("TCP Recv NOTIFY_RESULT:", unsigned(msg_.value))
               break;
             }
             case PacketType::PERFORM_ACTION:
@@ -104,9 +93,7 @@ void LightswitchClient::loop() {
               storage_.setServerAddress(ip);
               // TODO: Parse value of `value` to find result. 0=success/1=error ?
               // TODO: We are done here - POWER DOWN
-#ifdef DEBUG_MODE
-              std::cout << "UDP Recv NOTIFY_RESULT: " << unsigned(msg_.value) << std::endl;
-#endif
+              DEBUG("UDP Recv NOTIFY_RESULT:", unsigned(msg_.value))
               break;
             }
             case PacketType::PERFORM_ACTION:
@@ -131,9 +118,7 @@ ClientStorage &LightswitchClient::getStorage() {
 }
 
 void LightswitchClient::sendPerformAction(uint8_t action, uint8_t value) {
-#ifdef DEBUG_MODE
-  std::cout << "sendPerformAction(action=" << unsigned(msg_.action) << ", value=" << unsigned(msg_.value) << ")" << std::endl;
-#endif
+  DEBUG("sendPerformAction(action:", unsigned(msg_.action), ", value:", unsigned(msg_.value), ")")
   // Populate outgoing message
   msg_.reset();
   msg_.type = PacketType::PERFORM_ACTION;
@@ -145,16 +130,12 @@ void LightswitchClient::sendPerformAction(uint8_t action, uint8_t value) {
   switch (mode_) {
     case ConnectionMode::DIRECT: {
       sendPerformActionDirect();
-#ifdef DEBUG_MODE
-      std::cout << "Sent direct TCP packet." << std::endl;
-#endif
+      DEBUG("Sent direct TCP packet.")
       break;
     }
     case ConnectionMode::BROADCAST: {
       sendPerformActionBroadcast();
-#ifdef DEBUG_MODE
-      std::cout << "Sent broadcast UDP packet." << std::endl;
-#endif
+      DEBUG("Sent broadcast UDP packet.")
       break;
     }
     default:
@@ -165,9 +146,7 @@ void LightswitchClient::sendPerformAction(uint8_t action, uint8_t value) {
   uint16_t count = CFG_DEFAULT_CLIENT_CLICK_COUNT;
   bool hasClicks = storage_.getClicks(count);
   count += 1;
-#ifdef DEBUG_MODE
-  std::cout << "New click count: " << count << " | Had clicks: " << (hasClicks ? "YES" : "NO") << std::endl;
-#endif
+  DEBUG("New click count:", unsigned(count), "| Had clicks:", (hasClicks ? "YES" : "NO"))
   storage_.setClicks(count);
 }
 
