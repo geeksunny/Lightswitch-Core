@@ -28,7 +28,7 @@ class LightswitchServer {
   WiFiServer server_;
   WiFiUDP udp_;
  public:
-  LightswitchServer(ActionHandler &handler);
+  explicit LightswitchServer(ActionHandler &handler);
   void setup();
   void loop();
   ServerStorage &getStorage();
