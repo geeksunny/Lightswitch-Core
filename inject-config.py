@@ -13,7 +13,7 @@ def parseConfig(d, prefix=''):
         if t is dict:
             result.extend(parseConfig(d[key], key))
             continue
-        elif t in (str, unicode):
+        elif t in (str, bytes):
             if d[key] == "":
                 result.append(str(prefix+key))
                 continue
