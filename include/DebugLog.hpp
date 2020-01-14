@@ -1,7 +1,7 @@
 #ifndef LIGHTSWITCHCORE_INCLUDE_DEBUGLOG_HPP_
 #define LIGHTSWITCHCORE_INCLUDE_DEBUGLOG_HPP_
 
-#ifdef DEBUG_MODE
+#ifdef IS_DEBUG_MODE
   #include <iostream>
 
   #define SETUP_SERIAL(baud_rate, delay_ms, ready_msg)\

@@ -1,5 +1,5 @@
 {
-  "DEBUG_MODE": "",
+  "IS_DEBUG_MODE": "",
   "MODE_SWITCH_PIN": 4,
   "DEVICE_NAME": "Lightswitch",
   "CFG_DEFAULT_CLIENT": {

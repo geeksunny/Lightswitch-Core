@@ -32,7 +32,7 @@ bool startAP() {
   bool started = WiFi.softAP(name);
 #endif
 
-#ifdef DEBUG_MODE
+#ifdef IS_DEBUG_MODE
   if (started) {
     std::cout << "Started AP with name: " << name << " | Encrypted: " << (AP_ENCRYPTED ? "YES" : "NO") << std::endl;
     std::cout << "Server IP: " << WiFi.softAPIP().toString() << std::endl;
@@ -76,7 +76,7 @@ bool startClient() {
   while (WiFi.status() != WL_CONNECTED) {
     // wait 0.5 seconds for connection:
     delay(500);
-#ifdef DEBUG_MODE
+#ifdef IS_DEBUG_MODE
     std::cout << ".";
 #endif
     // TODO: Handle a wifi timeout period, return false on timeout
