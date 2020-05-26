@@ -1,7 +1,7 @@
 #ifndef LIGHTSWITCHCORE_INCLUDE_STORAGE_HPP_
 #define LIGHTSWITCHCORE_INCLUDE_STORAGE_HPP_
 
-#include <FS.h>
+#include <LittleFS.h>
 
 namespace storage {
 
@@ -11,7 +11,7 @@ class Storage {
 
  public:
   Storage &setup() {
-    SPIFFS.begin();
+    LittleFS.begin();
     started_ = true;
     return *this;
   }
@@ -27,7 +27,7 @@ class Storage {
   template<typename T>
   bool get(const String key, T &v, uint8_t length) {
     if (started_) {
-      File file = SPIFFS.open(key, "r");
+      File file = LittleFS.open(key, "r");
       if (file) {
         uint8_t bytesRead = file.readBytes((char *) &v, length);
         file.close();
@@ -45,7 +45,7 @@ class Storage {
   template<typename T>
   bool put(const String key, T &v, uint8_t length) {
     if (started_) {
-      File file = SPIFFS.open(key, "w");
+      File file = LittleFS.open(key, "w");
       if (file) {
         uint8_t bytesWritten = file.write((char *) &v, length);
         file.close();
