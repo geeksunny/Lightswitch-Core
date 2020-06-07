@@ -59,6 +59,20 @@ typedef struct __attribute__((packed)) _LS_MSG_FIXED {
   }
 } LS_MSG_FIXED;
 
+/**
+ * Data structure for a mini Lightswitch message packet.
+ *
+ * This does not include the sender's MAC address.
+ */
+typedef struct __attribute__((packed)) _LS_MSG_FIXED_MINI {
+  uint8_t type;
+  uint8_t action;
+  uint8_t value;
+  void reset() {
+    memset(this, 0, sizeof(_LS_MSG_FIXED_MINI));
+  }
+} LS_MSG_FIXED_MINI;
+
 template<typename ClientStream, typename Container>
 inline int parseLightswitchPacket(ClientStream &src, Container &dest) {
   return src.read((uint8_t *) &dest, sizeof(Container));

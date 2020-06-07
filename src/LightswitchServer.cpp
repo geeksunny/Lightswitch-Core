@@ -1,5 +1,6 @@
 #include "LightswitchServer.h"
 #include "DebugLog.hpp"
+#include "EspNowTools.h"
 
 namespace lightswitch {
 
@@ -116,6 +117,39 @@ void UdpInterface::onResult(bool success) {
   DEBUG("Flushed UDP stream.")
 }
 
+////////////////////////////////////////////////////////////////
+// Class : EspNowInterface /////////////////////////////////////
+////////////////////////////////////////////////////////////////
+
+void EspNowInterface::on_recv(uint8_t *mac_addr, uint8_t *data, uint8_t len) {
+  ESP_NOW_GET_DATA(EspNowInterface::active_interface->msg_, data);
+  EspNowInterface::active_interface->received_ = true;
+  DEBUG("ESP-NOW data received!")
+  // TODO: Improve debug output, display mac address, action details.
+}
+
+EspNowInterface::EspNowInterface() {
+  EspNowInterface::active_interface = this;
+}
+
+void EspNowInterface::setup() {
+  esp_now_tools::startServer(EspNowInterface::on_recv);
+}
+
+bool EspNowInterface::read(LS_ACTION &dest) {
+  if (received_) {
+    dest.action = msg_.action;
+    dest.value = msg_.value;
+    dest.reset(); // TODO: Is reset() necessary here?
+    received_ = false;
+    return true;
+  }
+  return false;
+}
+
+void EspNowInterface::onResult(bool success) {
+  // Nothing to be done here.
+}
 
 ////////////////////////////////////////////////////////////////
 // Class : LightswitchServer ///////////////////////////////////

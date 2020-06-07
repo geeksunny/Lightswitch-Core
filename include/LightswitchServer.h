@@ -57,6 +57,19 @@ class UdpInterface : public NetworkInterface {
   WiFiUDP udp_;
 };
 
+class EspNowInterface : public ServerInterface {
+  static EspNowInterface *active_interface;
+  static void on_recv(uint8_t *mac_addr, uint8_t *data, uint8_t len);
+ public:
+  explicit EspNowInterface();
+  void setup() override;
+  bool read(LS_ACTION &dest) override;
+  void onResult(bool success) override;
+ private:
+  LS_MSG_FIXED_MINI msg_{};
+  bool received_ = false;
+};
+
 // TODO: Refactor LightswitchServer to iterate over one-or-more ServerInterface objects for task operations
 class LightswitchServer {
   ActionHandler &handler_;
