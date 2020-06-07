@@ -4,7 +4,9 @@
 #include "Lightswitch.h"
 #include "Storage.hpp"
 #include <WiFiServer.h>
+#include <WiFiClient.h>
 #include <WiFiUdp.h>
+#include <deque>
 
 namespace lightswitch {
 
@@ -19,14 +21,48 @@ class ServerStorage : public storage::Storage {
   // TODO: getters & setters
 };
 
-// TODO: Implement optional DHCP mode that uses DHCP monitoring to detect clicks, ala Amazon Dash Buttons
+class ServerInterface {
+ public:
+  virtual void setup() = 0;
+  virtual bool read(LS_ACTION &dest) = 0;
+  virtual void onResult(bool success) = 0;
+};
 
+class NetworkInterface : public ServerInterface {
+ protected:
+  LS_MSG_FIXED msg_{};
+  void prepOutgoingPacket(bool result);
+};
+
+class TcpInterface : public NetworkInterface {
+ public:
+  explicit TcpInterface();
+
+  void setup() override;
+  bool read(LS_ACTION &dest) override;
+  void onResult(bool success) override;
+
+ private:
+  WiFiServer server_;
+  WiFiClient client_;
+};
+
+class UdpInterface : public NetworkInterface {
+ public:
+  void setup() override;
+  bool read(LS_ACTION &dest) override;
+  void onResult(bool success) override;
+ private:
+  LS_MSG_FIXED msg_{};
+  WiFiUDP udp_;
+};
+
+// TODO: Refactor LightswitchServer to iterate over one-or-more ServerInterface objects for task operations
 class LightswitchServer {
   ActionHandler &handler_;
   ServerStorage storage_{};
-  LS_MSG_FIXED msg_{};
-  WiFiServer server_;
-  WiFiUDP udp_;
+  std::deque<ServerInterface> interfaces_;
+  LS_ACTION action_{};
  public:
   explicit LightswitchServer(ActionHandler &handler);
   void setup();
@@ -34,9 +70,6 @@ class LightswitchServer {
   ServerStorage &getStorage();
  private:
   bool dispatchAction(uint8_t action, uint8_t value);
-  void prepOutgoingPacket(bool result);
-  void readTCP();
-  void readUDP();
 };
 
 }

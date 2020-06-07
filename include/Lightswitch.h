@@ -35,6 +35,20 @@ enum LightswitchAction {
       CYCLE
 };
 
+/**
+ * Data structure for a Lightswitch action.
+ */
+typedef struct __attribute__((packed)) _LS_ACTION {
+  uint8_t action;
+  uint8_t value;
+  void reset() {
+    memset(this, 0, sizeof(_LS_ACTION));
+  }
+} LS_ACTION;
+
+/**
+ * Data structure for a Lightswitch message packet.
+ */
 typedef struct __attribute__((packed)) _LS_MSG_FIXED {
   uint8_t type;
   uint8_t action;
