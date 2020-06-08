@@ -1,6 +1,7 @@
 #include "LightswitchClient.h"
 #include <ESP8266WiFi.h>
-#include "DebugLog.hpp"
+#include <DebugLog.hpp>
+#include <EspNowTools.h>
 
 #define KEY_ACTION        "/cfg/action"
 #define KEY_CLICK_COUNT   "/cfg/clicks"
@@ -14,6 +15,10 @@
 #endif
 
 namespace lightswitch {
+
+////////////////////////////////////////////////////////////////
+// Class : ClientStorage ///////////////////////////////////////
+////////////////////////////////////////////////////////////////
 
 bool ClientStorage::getAction(uint8_t &dest) {
   return get(KEY_ACTION, dest);
@@ -39,9 +44,73 @@ bool ClientStorage::setServerAddress(IPAddress &ip_address) {
   return put(KEY_SERVER_IP, ip_address);
 }
 
+////////////////////////////////////////////////////////////////
+// Class : LightswitchClient ///////////////////////////////////
+////////////////////////////////////////////////////////////////
+
 void LightswitchClient::setup() {
   storage_.setup();
 
+  clientSetup();
+}
+
+void LightswitchClient::loop() {
+  clientLoop();
+}
+
+ClientStorage &LightswitchClient::getStorage() {
+  return storage_;
+}
+
+void LightswitchClient::sendPerformAction(uint8_t action, uint8_t value) {
+  sendAction(action, value);
+  // Increment stored click count
+  uint16_t count = CFG_DEFAULT_CLIENT_CLICK_COUNT;
+  bool hasClicks = storage_.getClicks(count);
+  count += 1;
+  DEBUG("New click count:", unsigned(count), "| Had clicks:", (hasClicks ? "YES" : "NO"))
+  storage_.setClicks(count);
+}
+
+////////////////////////////////////////////////////////////////
+// Class : LightswitchEspNowClient /////////////////////////////
+////////////////////////////////////////////////////////////////
+
+LightswitchEspNowClient *LightswitchEspNowClient::active_client;
+
+void LightswitchEspNowClient::on_send(uint8_t *mac_addr, uint8_t status) {
+  LightswitchEspNowClient::active_client->sent_ = true;
+  LightswitchEspNowClient::active_client->send_status_ = status;
+  DEBUG("ESP-NOW data sent! Result: ", (unsigned)status)
+}
+
+LightswitchEspNowClient::LightswitchEspNowClient() {
+  LightswitchEspNowClient::active_client = this;
+}
+
+void LightswitchEspNowClient::clientSetup() {
+  esp_now_tools::startClient(server_mac_addr, LightswitchEspNowClient::on_send);
+}
+
+void LightswitchEspNowClient::clientLoop() {
+  if (sent_) {
+    sent_ = false;
+    // TODO: consume send_status_ here?
+  }
+}
+
+void LightswitchEspNowClient::sendAction(uint8_t action, uint8_t value) {
+  LS_MSG_FIXED_MINI data;
+  data.action = action;
+  data.value = value;
+  ESP_NOW_SEND(server_mac_addr, data)
+}
+
+////////////////////////////////////////////////////////////////
+// Class : LightswitchWifiClient ///////////////////////////////
+////////////////////////////////////////////////////////////////
+
+void LightswitchWifiClient::clientSetup() {
   IPAddress server;
   storage_.getServerAddress(server);
   if (server.isV4() && tcp_.connect(server, LIGHTSWITCH_PORT_SERVER)) {
@@ -56,7 +125,7 @@ void LightswitchClient::setup() {
 }
 
 // TODO: Tune-up parsing logic, reduce redundant code
-void LightswitchClient::loop() {
+void LightswitchWifiClient::clientLoop() {
   switch (mode_) {
     case ConnectionMode::DIRECT: {
       // Check for TCP traffic
@@ -113,17 +182,11 @@ void LightswitchClient::loop() {
   }
 }
 
-ClientStorage &LightswitchClient::getStorage() {
-  return storage_;
-}
-
-void LightswitchClient::sendPerformAction(uint8_t action, uint8_t value) {
-  DEBUG("sendPerformAction(action:", unsigned(msg_.action), ", value:", unsigned(msg_.value), ")")
+void LightswitchWifiClient::sendAction(uint8_t action, uint8_t value) {
   // Populate outgoing message
   msg_.reset();
   msg_.type = PacketType::PERFORM_ACTION;
-  // TODO: pull action from storage, store default value if none set
-  msg_.action = CFG_DEFAULT_CLIENT_ACTION;
+  msg_.action = action;
   msg_.value = value;
   WiFi.macAddress(msg_.mac);
   // Send the message
@@ -142,22 +205,16 @@ void LightswitchClient::sendPerformAction(uint8_t action, uint8_t value) {
       // Shouldn't be here.
       break;
   }
-  // Increment stored click count
-  uint16_t count = CFG_DEFAULT_CLIENT_CLICK_COUNT;
-  bool hasClicks = storage_.getClicks(count);
-  count += 1;
-  DEBUG("New click count:", unsigned(count), "| Had clicks:", (hasClicks ? "YES" : "NO"))
-  storage_.setClicks(count);
 }
 
-void LightswitchClient::sendPerformActionDirect() {
+void LightswitchWifiClient::sendPerformActionDirect() {
   if (tcp_.connected()) {
     // TODO: Do we need to check for tcp_.available() & flush before sending anything?
     tcp_.write((char *) &msg_, LIGHTSWITCH_PACKET_BUFFER_SIZE);
   }
 }
 
-void LightswitchClient::sendPerformActionBroadcast() {
+void LightswitchWifiClient::sendPerformActionBroadcast() {
   udp_.beginPacket({255, 255, 255, 255}, LIGHTSWITCH_PORT_SERVER);
   udp_.write((uint8_t *) &msg_, LIGHTSWITCH_PACKET_BUFFER_SIZE);
   udp_.endPacket();

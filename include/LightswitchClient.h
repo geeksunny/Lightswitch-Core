@@ -25,18 +25,46 @@ enum ConnectionMode {
 };
 
 class LightswitchClient {
-  ConnectionMode mode_{};
-  ClientStorage storage_{};
-  LS_MSG_FIXED msg_{};
-  WiFiClient tcp_;
-  WiFiUDP udp_;
  public:
   LightswitchClient() = default;
   void setup();
   void loop();
   ClientStorage &getStorage();
   void sendPerformAction(uint8_t action, uint8_t value);
+ protected:
+  ClientStorage storage_{};
  private:
+  virtual void clientSetup() = 0;
+  virtual void clientLoop() = 0;
+  virtual void sendAction(uint8_t action, uint8_t value) = 0;
+};
+
+class LightswitchEspNowClient : public LightswitchClient {
+  static LightswitchEspNowClient *active_client;
+  static void on_send(uint8_t *mac_addr, uint8_t status);
+ public:
+  explicit LightswitchEspNowClient();
+ private:
+  uint8_t server_mac_addr[6] = LIGHTSWITCH_SERVER_MAC_ADDRESS;
+  bool sent_ = false;
+  bool send_status_ = false;
+
+  void clientSetup() override;
+  void clientLoop() override;
+  void sendAction(uint8_t action, uint8_t value) override;
+};
+
+class LightswitchWifiClient : public LightswitchClient {
+ public:
+ private:
+  ConnectionMode mode_{};
+  LS_MSG_FIXED msg_{};
+  WiFiClient tcp_;
+  WiFiUDP udp_;
+
+  void clientSetup() override;
+  void clientLoop() override;
+  void sendAction(uint8_t action, uint8_t value) override;
   void sendPerformActionDirect();
   void sendPerformActionBroadcast();
 };
