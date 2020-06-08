@@ -155,6 +155,10 @@ LightswitchServer::LightswitchServer(ActionHandler &handler) : handler_(handler)
   //
 }
 
+void LightswitchServer::addInterface(ServerInterface &an_interface) {
+  interfaces_.push_back(an_interface);
+}
+
 void LightswitchServer::setup() {
   for (auto & interface : interfaces_) {
     interface.setup();

@@ -78,6 +78,7 @@ class LightswitchServer {
   LS_ACTION action_{};
  public:
   explicit LightswitchServer(ActionHandler &handler);
+  void addInterface(ServerInterface &an_interface);
   void setup();
   void loop();
   ServerStorage &getStorage();
