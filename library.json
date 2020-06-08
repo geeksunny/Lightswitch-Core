@@ -12,5 +12,11 @@
     },
     "version": "0.0.1",
     "frameworks": "arduino",
-    "platforms": "espressif8266"
+    "platforms": "espressif8266",
+    "dependencies": [
+        {
+            "name": "especially-useful",
+            "version": "https://github.com/geeksunny/especially-useful.git#master"
+        }
+    ]
 }
