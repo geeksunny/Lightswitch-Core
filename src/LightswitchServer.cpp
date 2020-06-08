@@ -117,6 +117,8 @@ void UdpInterface::onResult(bool success) {
 // Class : EspNowInterface /////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 
+EspNowInterface *EspNowInterface::active_interface;
+
 void EspNowInterface::on_recv(uint8_t *mac_addr, uint8_t *data, uint8_t len) {
   ESP_NOW_GET_DATA(EspNowInterface::active_interface->msg_, data);
   EspNowInterface::active_interface->received_ = true;
