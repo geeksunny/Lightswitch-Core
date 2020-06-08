@@ -155,21 +155,21 @@ LightswitchServer::LightswitchServer(ActionHandler &handler) : handler_(handler)
   //
 }
 
-void LightswitchServer::addInterface(ServerInterface &an_interface) {
+void LightswitchServer::registerInterface(ServerInterface *an_interface) {
   interfaces_.push_back(an_interface);
 }
 
 void LightswitchServer::setup() {
   for (auto & interface : interfaces_) {
-    interface.setup();
+    interface->setup();
   }
 }
 
 void LightswitchServer::loop() {
   for (auto & interface : interfaces_) {
-    bool action_found = interface.read(action_);
+    bool action_found = interface->read(action_);
     if (action_found) {
-      interface.onResult(dispatchAction(action_.action, action_.value));
+      interface->onResult(dispatchAction(action_.action, action_.value));
     }
   }
 }
