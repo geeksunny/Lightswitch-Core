@@ -13,7 +13,7 @@
 #define LS_MAC_ADDR_TO_TEXT_B(a, b, c, d, e, f) LS_MAC_ADDR_TO_TEXT_C(a b c d e f)
 #define LS_MAC_ADDR_TO_TEXT_C(a) #a
 #ifndef LIGHTSWITCH_SERVER_MAC_ADDRESS
-  #define LIGHTSWITCH_SERVER_MAC_ADDRESS [0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF]
+  #define LIGHTSWITCH_SERVER_MAC_ADDRESS {0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF}
   #pragma message ("Using DEFAULT hard-coded MAC address for LightswitchServer! " LS_MAC_ADDR_TO_TEXT(LIGHTSWITCH_SERVER_MAC_ADDRESS))
 #else
   #pragma message ("Using pre-configured hard-coded MAC address for LightswitchServer! " LS_MAC_ADDR_TO_TEXT(LIGHTSWITCH_SERVER_MAC_ADDRESS))
