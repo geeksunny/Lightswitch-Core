@@ -1,6 +1,7 @@
 #include "LightswitchClient.h"
 #include <ESP8266WiFi.h>
 #include <DebugLog.hpp>
+#include <WifiTools.h>
 #include <EspNowTools.h>
 
 #define KEY_ACTION        "/cfg/action"
@@ -89,6 +90,7 @@ LightswitchEspNowClient::LightswitchEspNowClient() {
 }
 
 void LightswitchEspNowClient::clientSetup() {
+  wifi_tools::disableWifiConnection();
   esp_now_tools::startClient(server_mac_addr, LightswitchEspNowClient::on_send);
 }
 
