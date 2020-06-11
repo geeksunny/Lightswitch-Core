@@ -70,12 +70,7 @@ class EspNowInterface : public ServerInterface {
   bool received_ = false;
 };
 
-// TODO: Refactor LightswitchServer to iterate over one-or-more ServerInterface objects for task operations
 class LightswitchServer {
-  ActionHandler &handler_;
-  ServerStorage storage_{};
-  std::deque<ServerInterface*> interfaces_;
-  LS_ACTION action_{};
  public:
   explicit LightswitchServer(ActionHandler &handler);
   void registerInterface(ServerInterface *an_interface);
@@ -83,6 +78,10 @@ class LightswitchServer {
   void loop();
   ServerStorage &getStorage();
  private:
+  ActionHandler &handler_;
+  ServerStorage storage_{};
+  std::deque<ServerInterface*> interfaces_;
+  LS_ACTION action_{};
   bool dispatchAction(uint8_t action, uint8_t value);
 };
 
