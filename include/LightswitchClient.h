@@ -14,9 +14,11 @@ class ClientStorage : public storage::Storage {
   bool getAction(uint8_t &dest);
   bool getClicks(uint16_t &dest);
   bool getServerAddress(IPAddress &dest);
+  bool getWifiChannel(uint8_t &dest);
   bool setAction(uint8_t &action);
   bool setClicks(uint16_t &clicks);
   bool setServerAddress(IPAddress &ip_address);
+  bool setWifiChannel(uint8_t &channel);
 };
 
 enum ConnectionMode {
@@ -42,6 +44,7 @@ class LightswitchClient {
 class LightswitchEspNowClient : public LightswitchClient {
   static LightswitchEspNowClient *active_client;
   static void on_send(uint8_t *mac_addr, uint8_t status);
+  static void on_repair(uint8_t new_channel);
  public:
   explicit LightswitchEspNowClient();
  private:

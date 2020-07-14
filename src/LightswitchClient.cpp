@@ -7,6 +7,7 @@
 #define KEY_ACTION        "/cfg/action"
 #define KEY_CLICK_COUNT   "/cfg/clicks"
 #define KEY_SERVER_IP     "/cfg/server"
+#define KEY_WIFI_CHANNEL  "/cfg/channel"
 
 #ifndef CFG_DEFAULT_CLIENT_CLICK_COUNT
 #define CFG_DEFAULT_CLIENT_CLICK_COUNT 0
@@ -33,6 +34,10 @@ bool ClientStorage::getServerAddress(IPAddress &dest) {
   return get(KEY_SERVER_IP, dest);
 }
 
+bool ClientStorage::getWifiChannel(uint8_t &dest) {
+  return get(KEY_WIFI_CHANNEL, dest);
+}
+
 bool ClientStorage::setAction(uint8_t &action) {
   return put(KEY_ACTION, action);
 }
@@ -43,6 +48,10 @@ bool ClientStorage::setClicks(uint16_t &clicks) {
 
 bool ClientStorage::setServerAddress(IPAddress &ip_address) {
   return put(KEY_SERVER_IP, ip_address);
+}
+
+bool ClientStorage::setWifiChannel(uint8_t &channel) {
+  return put(KEY_WIFI_CHANNEL, channel);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -77,12 +86,19 @@ void LightswitchClient::sendPerformAction(uint8_t action, uint8_t value) {
 // Class : LightswitchEspNowClient /////////////////////////////
 ////////////////////////////////////////////////////////////////
 
+/* static */
 LightswitchEspNowClient *LightswitchEspNowClient::active_client;
 
+/* static */
 void LightswitchEspNowClient::on_send(uint8_t *mac_addr, uint8_t status) {
   LightswitchEspNowClient::active_client->sent_ = true;
   LightswitchEspNowClient::active_client->send_status_ = status;
   DEBUG("ESP-NOW data sent! Result: ", (unsigned)status)
+}
+
+/* static */
+void LightswitchEspNowClient::on_repair(uint8_t new_channel) {
+  active_client->getStorage().setWifiChannel(new_channel);
 }
 
 LightswitchEspNowClient::LightswitchEspNowClient() {
@@ -91,7 +107,19 @@ LightswitchEspNowClient::LightswitchEspNowClient() {
 
 void LightswitchEspNowClient::clientSetup() {
   wifi_tools::disableWifiConnection();
-  esp_now_tools::startClient(server_mac_addr, LightswitchEspNowClient::on_send);
+
+  uint8_t channel;
+  if (!getStorage().getWifiChannel(channel)) {
+    // Default value, if no channel value is stored.
+    channel = 0;
+  }
+  bool paired = esp_now_tools::EspNow::configure(esp_now_tools::EspNow::Role::CLIENT)
+      .setOnSendCallback(LightswitchEspNowClient::on_send)
+      .commit()
+      ->pair(server_mac_addr, channel, LightswitchEspNowClient::on_repair);
+  if (!paired) {
+    DEBUG("Failed to pair with server peer.")
+  }
 }
 
 void LightswitchEspNowClient::clientLoop() {
@@ -105,7 +133,7 @@ void LightswitchEspNowClient::sendAction(uint8_t action, uint8_t value) {
   LS_MSG_FIXED_MINI data;
   data.action = action;
   data.value = value;
-  ESP_NOW_SEND(server_mac_addr, data)
+  esp_now_tools::EspNow::getInstance()->send(server_mac_addr, data);
 }
 
 ////////////////////////////////////////////////////////////////
