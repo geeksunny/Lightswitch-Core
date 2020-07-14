@@ -1,20 +1,27 @@
 """
 This script parses values from config.json for use in the build environment as value macros.
+The order of values in the source json file is expected to be maintained.
 """
 import json
 import re
+import sys
+from collections import OrderedDict
+
+
+# Python 2/3 compatibility
+STR_TYPE = bytes if (sys.version_info > (3, 0)) else unicode
 
 
 def parseConfig(d, prefix=''):
-    if prefix is not '':
+    if prefix != '':
         prefix += '_'
     result = []
     for key in d:
         t = type(d[key])
-        if t is dict:
+        if t in (dict, OrderedDict):
             result.extend(parseConfig(d[key], key))
             continue
-        elif t in (str, bytes):
+        elif t in (str, STR_TYPE):
             if d[key] == "":
                 result.append(str(prefix+key))
                 continue
@@ -32,7 +39,7 @@ def parseConfig(d, prefix=''):
 
 cfg = []
 with open('config.json') as f:
-    cfg.extend(parseConfig(json.load(f)))
+    cfg.extend(parseConfig(json.load(f, object_pairs_hook=OrderedDict)))
 
 
 if cfg:

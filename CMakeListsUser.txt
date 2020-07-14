@@ -1,0 +1,11 @@
+add_custom_target(
+    PLATFORMIO_CLEAN ALL
+    COMMAND platformio -c clion run --target clean "$<$<NOT:$<CONFIG:All>>:-e${CMAKE_BUILD_TYPE}>"
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+add_custom_target(
+    PLATFORMIO_MONITOR ALL
+    COMMAND platformio -c clion device monitor "$<$<NOT:$<CONFIG:All>>:-e${CMAKE_BUILD_TYPE}>"
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+)
